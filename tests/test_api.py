@@ -17,6 +17,34 @@ def test_health_endpoint():
     assert response.json() == {"status": "healthy"}
 
 
+def test_weather_endpoint_success(monkeypatch):
+    def mock_get_rainfall(lat, lon):
+        return {
+            "latitude": lat,
+            "longitude": lon,
+            "timezone": "Asia/Kolkata",
+            "temperature_c": 28.5,
+            "humidity_percent": 55.0,
+            "forecast_hours": 24,
+            "rainfall_next_24h_mm": 0.0,
+            "hourly_forecast": [],
+        }
+
+    monkeypatch.setattr("src.api.get_rainfall_forecast", mock_get_rainfall)
+
+    response = client.get("/weather?latitude=26.93&longitude=81.18")
+    assert response.status_code == 200
+    data = response.json()
+    assert data["latitude"] == 26.93
+    assert data["longitude"] == 81.18
+    assert data["temperature_c"] == 28.5
+
+
+def test_weather_endpoint_rejects_invalid_coords():
+    response = client.get("/weather?latitude=95&longitude=81.18")
+    assert response.status_code == 422
+
+
 def test_predict_endpoint_success(monkeypatch):
     def mock_run_backend(property_data, latitude, longitude):
         return {

@@ -1,14 +1,15 @@
 import os
 import logging
 from contextlib import asynccontextmanager
-from typing import Any, Literal
+from typing import Any, Literal, Optional
 
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Query
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 from src.backend_service import run_backend
 from src.predict import load_model
+from src.weather_service import get_rainfall_forecast
 
 
 logging.basicConfig(level=logging.INFO)
@@ -104,6 +105,27 @@ def health() -> dict[str, str]:
     return {"status": "healthy"}
 
 
+@app.get("/weather")
+def weather(
+    latitude: float = Query(..., ge=-90, le=90, description="Latitude coordinate (-90 to 90)"),
+    longitude: float = Query(..., ge=-180, le=180, description="Longitude coordinate (-180 to 180)"),
+) -> dict[str, Any]:
+    """Retrieve live weather and 24-hour rainfall forecast for field coordinates."""
+    try:
+        return get_rainfall_forecast(latitude, longitude)
+    except ValueError as exc:
+        raise HTTPException(
+            status_code=422,
+            detail=str(exc),
+        ) from exc
+    except RuntimeError as exc:
+        logger.warning("Weather forecast service unavailable: %s", exc)
+        raise HTTPException(
+            status_code=503,
+            detail="Weather forecast service is unavailable.",
+        ) from exc
+
+
 @app.post("/predict")
 def predict(request: IrrigationRequest) -> dict[str, Any]:
     try:
@@ -144,3 +166,52 @@ def predict(request: IrrigationRequest) -> dict[str, Any]:
             status_code=500,
             detail="An unexpected internal error occurred.",
         ) from exc
+
+
+# ── IoT Sensor Stub Endpoint ──────────────────────────────────────────────────
+# This endpoint is the integration point for real ESP32 hardware in production.
+# Currently it accepts and acknowledges sensor payloads but does not persist them.
+# Future: store readings in MongoDB / TimescaleDB and serve via GET /api/sensor/latest
+
+
+class SensorReading(BaseModel):
+    """Schema matching the ESP32 capacitive soil moisture sensor payload."""
+    sensor_id: str = Field(..., description="Physical sensor node ID (e.g. JS-NODE-01)")
+    land_id: str = Field(..., description="Land plot ID this sensor is attached to")
+    soil_moisture: float = Field(..., ge=0, le=100, description="Soil moisture percentage")
+    probe_depth_cm: int = Field(..., description="Sensor probe depth in cm")
+    battery_pct: float = Field(..., ge=0, le=100, description="Sensor battery level %")
+    signal_rssi: int = Field(..., description="LoRa/GSM RSSI signal strength in dBm")
+    signal_type: str = Field(default="LoRa/GSM", description="Communication protocol")
+    status: str = Field(default="active")
+    simulated: bool = Field(default=False, description="True if this is a simulated reading")
+    timestamp: str = Field(..., description="ISO 8601 timestamp from sensor RTC")
+
+
+@app.post("/api/sensor/reading", status_code=202)
+def receive_sensor_reading(reading: SensorReading) -> dict[str, Any]:
+    """
+    Accept a soil moisture reading from an ESP32 field sensor node.
+
+    Returns HTTP 202 Accepted. Currently logs and acknowledges only.
+    Future: persist to time-series database and trigger irrigation alerts.
+    """
+    logger.info(
+        "Sensor reading received | node=%s land=%s moisture=%.1f%% battery=%.0f%% rssi=%d dBm simulated=%s",
+        reading.sensor_id,
+        reading.land_id,
+        reading.soil_moisture,
+        reading.battery_pct,
+        reading.signal_rssi,
+        reading.simulated,
+    )
+    return {
+        "status": "accepted",
+        "sensor_id": reading.sensor_id,
+        "land_id": reading.land_id,
+        "soil_moisture": reading.soil_moisture,
+        "message": (
+            "Reading acknowledged. Persistence layer not yet connected — "
+            "replace this stub with MongoDB/TimescaleDB integration."
+        ),
+    }
