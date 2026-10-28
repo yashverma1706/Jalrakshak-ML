@@ -1,12 +1,10 @@
-
 import sys
 from pathlib import Path
-
-import src.weather_service as weather_service
 
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
+import src.weather_service as weather_service
 from src.predict import predict_irrigation_need
 from src.decision_service import recommend_action
 
