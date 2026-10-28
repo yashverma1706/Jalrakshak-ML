@@ -1,6 +1,6 @@
-
 from pathlib import Path
 import math
+from typing import Any
 
 import joblib
 import pandas as pd
@@ -36,14 +36,35 @@ NUMERIC_FEATURES = [
     "Humidity",
 ]
 
-model = joblib.load(MODEL_PATH)
+_model: Any = None
 
-# Fail early if the selected model does not match this feature schema.
-if list(model.feature_names_in_) != FEATURES:
-    raise RuntimeError(
-        "Model feature mismatch. "
-        f"Expected {FEATURES}, got {list(model.feature_names_in_)}"
-    )
+
+def get_model() -> Any:
+    """Load model lazily on first access and cache in memory."""
+    global _model
+    if _model is None:
+        if not MODEL_PATH.exists():
+            raise FileNotFoundError(f"Model file not found at: {MODEL_PATH}")
+        loaded = joblib.load(MODEL_PATH)
+        if list(loaded.feature_names_in_) != FEATURES:
+            raise RuntimeError(
+                "Model feature mismatch. "
+                f"Expected {FEATURES}, got {list(loaded.feature_names_in_)}"
+            )
+        _model = loaded
+    return _model
+
+
+def load_model() -> Any:
+    """Explicitly pre-load the model artifact into memory."""
+    return get_model()
+
+
+def __getattr__(name: str) -> Any:
+    """Module-level attribute fallback for backward-compatible `predict.model` access."""
+    if name == "model":
+        return get_model()
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
 
 
 def predict_irrigation_need(property_data: dict) -> str:
@@ -103,5 +124,6 @@ def predict_irrigation_need(property_data: dict) -> str:
 
         input_df.at[0, feature] = numeric_value
 
-    prediction = model.predict(input_df)[0]
+    current_model = get_model()
+    prediction = current_model.predict(input_df)[0]
     return str(prediction)

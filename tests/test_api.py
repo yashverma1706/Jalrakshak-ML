@@ -1,4 +1,3 @@
-
 import sys
 from pathlib import Path
 
@@ -73,6 +72,22 @@ def test_predict_rejects_invalid_latitude():
             "Humidity": 55.0,
             "Rainfall_mm": 100.0,
             "latitude": 95,
+            "longitude": 80.95,
+        },
+    )
+
+    assert response.status_code == 422
+
+
+def test_predict_rejects_invalid_crop_type():
+    response = client.post(
+        "/predict",
+        json={
+            "Soil_Moisture": 18.0,
+            "Crop_Type": "InvalidCrop",
+            "Crop_Growth_Stage": "Vegetative",
+            "Soil_Type": "Clay",
+            "latitude": 26.85,
             "longitude": 80.95,
         },
     )

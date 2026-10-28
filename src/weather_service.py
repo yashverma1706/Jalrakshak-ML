@@ -1,16 +1,37 @@
-
+import copy
 import math
+import time
 from datetime import datetime
 from zoneinfo import ZoneInfo
+from typing import Any
 
 import requests
 
 
 FORECAST_URL = "https://api.open-meteo.com/v1/forecast"
+DEFAULT_CACHE_TTL_SECONDS = 900  # 15 minutes
+
+# In-memory weather cache: (rounded_lat, rounded_lon) -> (timestamp, data_dict)
+_weather_cache: dict[tuple[float, float], tuple[float, dict[str, Any]]] = {}
 
 
-def get_rainfall_forecast(latitude: float, longitude: float) -> dict:
-    """Fetch current weather and the next 24 hours of rainfall."""
+def clear_weather_cache() -> None:
+    """Clear all entries in the weather cache."""
+    _weather_cache.clear()
+
+
+def get_weather_cache_size() -> int:
+    """Return the number of entries currently in the weather cache."""
+    return len(_weather_cache)
+
+
+def get_rainfall_forecast(
+    latitude: float,
+    longitude: float,
+    use_cache: bool = True,
+    cache_ttl_seconds: int = DEFAULT_CACHE_TTL_SECONDS,
+) -> dict:
+    """Fetch current weather and the next 24 hours of rainfall with optional caching."""
 
     try:
         latitude = float(latitude)
@@ -23,6 +44,13 @@ def get_rainfall_forecast(latitude: float, longitude: float) -> dict:
 
     if not math.isfinite(longitude) or not -180 <= longitude <= 180:
         raise ValueError("Longitude must be finite and between -180 and 180")
+
+    cache_key = (round(latitude, 2), round(longitude, 2))
+
+    if use_cache and cache_key in _weather_cache:
+        cached_time, cached_data = _weather_cache[cache_key]
+        if time.time() - cached_time < cache_ttl_seconds:
+            return copy.deepcopy(cached_data)
 
     params = {
         "latitude": latitude,
@@ -113,7 +141,7 @@ def get_rainfall_forecast(latitude: float, longitude: float) -> dict:
     selected_times = times[start_index:start_index + 24]
     selected_rainfall = rainfall_values[start_index:start_index + 24]
 
-    return {
+    result = {
         "latitude": data.get("latitude"),
         "longitude": data.get("longitude"),
         "timezone": timezone_name,
@@ -126,3 +154,8 @@ def get_rainfall_forecast(latitude: float, longitude: float) -> dict:
             for time, rainfall in zip(selected_times, selected_rainfall)
         ],
     }
+
+    if use_cache:
+        _weather_cache[cache_key] = (time.time(), copy.deepcopy(result))
+
+    return result

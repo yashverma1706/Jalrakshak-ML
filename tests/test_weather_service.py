@@ -1,4 +1,3 @@
-
 import sys
 from pathlib import Path
 from datetime import datetime, timedelta
@@ -8,7 +7,18 @@ import pytest
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-from src.weather_service import get_rainfall_forecast
+from src.weather_service import (
+    get_rainfall_forecast,
+    clear_weather_cache,
+    get_weather_cache_size,
+)
+
+
+@pytest.fixture(autouse=True)
+def reset_weather_cache():
+    clear_weather_cache()
+    yield
+    clear_weather_cache()
 
 
 def make_hourly_times():
@@ -77,6 +87,39 @@ def test_rainfall_forecast_success(monkeypatch):
     assert result["temperature_c"] == 30.5
     assert result["humidity_percent"] == 65
     assert len(result["hourly_forecast"]) == 24
+
+
+def test_rainfall_forecast_uses_cache(monkeypatch):
+    calls = []
+    rainfall = [1.0] + [0.0] * 23
+
+    def mock_get(*args, **kwargs):
+        calls.append(args)
+        return MockResponseWithTimeout(
+            make_mock_response(rainfall),
+            kwargs,
+        )
+
+    monkeypatch.setattr("src.weather_service.requests.get", mock_get)
+
+    assert get_weather_cache_size() == 0
+
+    first = get_rainfall_forecast(26.851, 80.951)
+    assert len(calls) == 1
+    assert get_weather_cache_size() == 1
+
+    # Second call with nearby coordinates (rounds to 26.85, 80.95) hits cache
+    second = get_rainfall_forecast(26.854, 80.949)
+    assert len(calls) == 1
+    assert second["rainfall_next_24h_mm"] == first["rainfall_next_24h_mm"]
+
+    # Explicit clear resets cache
+    clear_weather_cache()
+    assert get_weather_cache_size() == 0
+
+    # Call after clear fetches again
+    third = get_rainfall_forecast(26.85, 80.95)
+    assert len(calls) == 2
 
 
 def test_invalid_latitude_raises_error():
