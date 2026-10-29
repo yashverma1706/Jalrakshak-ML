@@ -740,12 +740,12 @@ export default function WeatherPage() {
         </div>
       </div>
 
-      {/* ── GOOGLE WEATHER DASHBOARD CARD ─────────────────────────────────── */}
-      <div className="bg-[#202124] text-white rounded-3xl p-6 sm:p-8 shadow-2xl border border-slate-800 transition-all">
+      {/* ── GOOGLE WEATHER DASHBOARD CARD (Clean White Theme) ───────────────── */}
+      <div className="bg-white text-slate-800 rounded-3xl p-6 sm:p-8 shadow-sm border border-slate-200 transition-all">
 
         {loading ? (
           <div className="py-24 flex flex-col items-center justify-center text-slate-400 gap-3">
-            <Loader2 className="w-8 h-8 animate-spin text-amber-400" />
+            <Loader2 className="w-8 h-8 animate-spin text-emerald-600" />
             <p className="text-sm font-medium">Fetching satellite weather for {activeCity.name}…</p>
           </div>
         ) : (
@@ -759,43 +759,43 @@ export default function WeatherPage() {
                 <GoogleWeatherIcon type={currentMeta.type} className="w-16 h-16 sm:w-20 sm:h-20" />
 
                 <div className="flex items-baseline">
-                  <span className="text-6xl sm:text-7xl font-light tracking-tight text-white">
+                  <span className="text-6xl sm:text-7xl font-light tracking-tight text-slate-900">
                     {formatTemp(currentTempC)}
                   </span>
-                  <div className="ml-2 text-sm text-slate-400 font-medium">
+                  <div className="ml-2 text-sm text-slate-500 font-medium">
                     <button
                       onClick={() => setUnit('C')}
-                      className={`cursor-pointer transition-colors ${unit === 'C' ? 'text-white font-bold' : 'hover:text-white'}`}
+                      className={`cursor-pointer transition-colors ${unit === 'C' ? 'text-slate-900 font-bold' : 'hover:text-slate-900'}`}
                     >
                       °C
                     </button>
-                    <span className="mx-1 text-slate-500">|</span>
+                    <span className="mx-1 text-slate-300">|</span>
                     <button
                       onClick={() => setUnit('F')}
-                      className={`cursor-pointer transition-colors ${unit === 'F' ? 'text-white font-bold' : 'hover:text-white'}`}
+                      className={`cursor-pointer transition-colors ${unit === 'F' ? 'text-slate-900 font-bold' : 'hover:text-slate-900'}`}
                     >
                       °F
                     </button>
                   </div>
                 </div>
 
-                <div className="text-xs text-slate-400 space-y-0.5 font-normal pl-2 sm:border-l sm:border-slate-800">
-                  <div>{lang === 'hi' ? 'वर्षा की संभावना:' : 'Precipitation:'} <span className="text-slate-200">{currentPrecipProb}%</span></div>
-                  <div>{lang === 'hi' ? 'आर्द्रता (नमी):' : 'Humidity:'} <span className="text-slate-200">{currentHumidity}%</span></div>
-                  <div>{lang === 'hi' ? 'हवा की गति:' : 'Wind:'} <span className="text-slate-200">{currentWind} {lang === 'hi' ? 'किमी/घंटा' : 'km/h'}</span></div>
+                <div className="text-xs text-slate-500 space-y-0.5 font-normal pl-2 sm:border-l sm:border-slate-200">
+                  <div>{lang === 'hi' ? 'वर्षा की संभावना:' : 'Precipitation:'} <span className="text-slate-900 font-semibold">{currentPrecipProb}%</span></div>
+                  <div>{lang === 'hi' ? 'आर्द्रता (नमी):' : 'Humidity:'} <span className="text-slate-900 font-semibold">{currentHumidity}%</span></div>
+                  <div>{lang === 'hi' ? 'हवा की गति:' : 'Wind:'} <span className="text-slate-900 font-semibold">{currentWind} {lang === 'hi' ? 'किमी/घंटा' : 'km/h'}</span></div>
                 </div>
               </div>
 
               {/* Right Side: "Weather", Day of Week, Condition */}
               <div className="text-right">
-                <div className="text-base sm:text-lg font-normal text-slate-300">{t('weatherLabel')}</div>
-                <div className="text-xs sm:text-sm text-slate-400">{dayNameFull}</div>
-                <div className="text-xs sm:text-sm text-slate-400 capitalize">{currentMeta.label}</div>
+                <div className="text-base sm:text-lg font-medium text-slate-800">{t('weatherLabel')}</div>
+                <div className="text-xs sm:text-sm text-slate-500">{dayNameFull}</div>
+                <div className="text-xs sm:text-sm text-slate-500 capitalize">{currentMeta.label}</div>
               </div>
             </div>
 
             {/* 2. Interactive Metric Tabs */}
-            <div className="flex items-center gap-6 border-b border-slate-700/60 text-sm font-medium pt-2">
+            <div className="flex items-center gap-6 border-b border-slate-200 text-sm font-medium pt-2">
               {[
                 { id: 'Temperature', label: t('tempTab') },
                 { id: 'Precipitation', label: t('precipTab') },
@@ -806,13 +806,13 @@ export default function WeatherPage() {
                   onClick={() => setActiveTab(tab.id)}
                   className={`pb-2.5 transition-all relative cursor-pointer ${
                     activeTab === tab.id
-                      ? 'text-white font-semibold'
-                      : 'text-slate-400 hover:text-slate-200'
+                      ? 'text-slate-900 font-bold'
+                      : 'text-slate-500 hover:text-slate-700'
                   }`}
                 >
                   {tab.label}
                   {activeTab === tab.id && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-400 rounded-full" />
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-amber-500 rounded-full" />
                   )}
                 </button>
               ))}
@@ -821,7 +821,7 @@ export default function WeatherPage() {
             {/* 3. Hourly Graph / Timeline Section */}
             <div className="py-2 space-y-3">
               {/* Values Row above graph */}
-              <div className="grid grid-cols-8 text-center text-xs font-semibold text-sky-400">
+              <div className="grid grid-cols-8 text-center text-xs font-semibold text-sky-600">
                 {hourlyChartData.map((d, i) => (
                   <div key={i} className="truncate">
                     {activeTab === 'Precipitation' && `${d.precip}%`}
@@ -833,12 +833,12 @@ export default function WeatherPage() {
 
               {/* Graphical Step / Area Line (Google Weather style) */}
               <div className="relative h-12 w-full flex items-end">
-                <div className="absolute inset-x-0 bottom-0 h-0.5 bg-slate-700" />
+                <div className="absolute inset-x-0 bottom-0 h-0.5 bg-slate-200" />
                 <svg className="w-full h-full overflow-visible" preserveAspectRatio="none" viewBox="0 0 700 48">
                   <defs>
                     <linearGradient id="weatherGrad" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="0%" stopColor="#38bdf8" stopOpacity="0.35" />
-                      <stop offset="100%" stopColor="#38bdf8" stopOpacity="0.0" />
+                      <stop offset="0%" stopColor="#0284c7" stopOpacity="0.25" />
+                      <stop offset="100%" stopColor="#0284c7" stopOpacity="0.0" />
                     </linearGradient>
                   </defs>
 
@@ -866,14 +866,14 @@ export default function WeatherPage() {
                     return (
                       <>
                         <path d={areaD} fill="url(#weatherGrad)" />
-                        <path d={pathD} fill="none" stroke="#38bdf8" strokeWidth="2.5" />
+                        <path d={pathD} fill="none" stroke="#0284c7" strokeWidth="2.5" />
                         {points.map((p, idx) => (
                           <circle
                             key={idx}
                             cx={p.x}
                             cy={p.y}
-                            r="3"
-                            fill="#38bdf8"
+                            r="3.5"
+                            fill="#0284c7"
                             className="transition-all hover:r-4"
                           />
                         ))}
@@ -884,7 +884,7 @@ export default function WeatherPage() {
               </div>
 
               {/* Timestamps Row below graph */}
-              <div className="grid grid-cols-8 text-center text-[11px] font-medium text-slate-400">
+              <div className="grid grid-cols-8 text-center text-[11px] font-medium text-slate-500">
                 {hourlyChartData.map((d, i) => (
                   <div key={i} className="truncate">{d.label}</div>
                 ))}
@@ -892,7 +892,7 @@ export default function WeatherPage() {
             </div>
 
             {/* 4. 8-Day Forecast Row (Daily Cards) */}
-            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 pt-2 border-t border-slate-700/50">
+            <div className="grid grid-cols-4 sm:grid-cols-8 gap-2 pt-2 border-t border-slate-100">
               {dailyList.slice(0, 8).map((day, idx) => {
                 const isSelected = selectedDayIdx === idx;
                 const meta = getWeatherMeta(day.weather_code, lang);
@@ -904,11 +904,11 @@ export default function WeatherPage() {
                     onClick={() => setSelectedDayIdx(idx)}
                     className={`flex flex-col items-center justify-between p-2.5 rounded-2xl transition-all cursor-pointer text-center ${
                       isSelected
-                        ? 'bg-[#2d3035] ring-1 ring-slate-600 shadow-md'
-                        : 'hover:bg-white/5'
+                        ? 'bg-slate-100 ring-2 ring-emerald-600/30 shadow-xs'
+                        : 'hover:bg-slate-50'
                     }`}
                   >
-                    <span className="text-xs font-medium text-slate-300">
+                    <span className={`text-xs font-medium ${isSelected ? 'text-slate-900 font-bold' : 'text-slate-600'}`}>
                       {dayDisplay}
                     </span>
 
@@ -917,7 +917,7 @@ export default function WeatherPage() {
                     </div>
 
                     <div className="text-xs font-semibold flex items-center gap-1.5">
-                      <span className="text-white">{formatTemp(day.temp_max)}°</span>
+                      <span className="text-slate-900">{formatTemp(day.temp_max)}°</span>
                       <span className="text-slate-400 font-normal">{formatTemp(day.temp_min)}°</span>
                     </div>
                   </button>

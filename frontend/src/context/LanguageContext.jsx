@@ -11,12 +11,13 @@ export const TRANSLATIONS = {
     footerReview: 'Agronomic Review Layer • Powered by Open-Meteo & Scikit-learn',
 
     // Navigation
+    navHome: 'Home',
     navAdvisor: 'Irrigation Advisor',
     navWeather: 'Weather & Rainfall',
     navLands: 'Farmer Lands',
     newPlot: 'New Plot',
     registerNewLand: 'Register New Land',
-    registerNewLandTitle: 'Register New Land Plot (Barabanki, UP)',
+    registerNewLandTitle: 'Register New Agricultural Land',
     editLandTitle: 'Edit Agricultural Land',
     mlLive: 'ML Live',
     mlOffline: 'ML Offline',
@@ -72,7 +73,7 @@ export const TRANSLATIONS = {
     wetLegend: '71-100% Wet',
     runAdvisorBtn: 'Run AI Irrigation Advisor',
     fetchingWeatherCalc: 'Fetching Weather & Calculating...',
-    pullsSatelliteWeather: 'Pulls live Open-Meteo satellite weather for Barabanki, UP automatically.',
+    pullsSatelliteWeather: 'Pulls live Open-Meteo satellite weather for field coordinates automatically.',
 
     // IoT Sensor Widget
     simulatedIot: 'Simulated IoT',
@@ -147,12 +148,13 @@ export const TRANSLATIONS = {
     footerReview: 'कृषि विज्ञान समीक्षा परत • ओपन-मेटियो और मशीन लर्निंग आधारित',
 
     // Navigation
+    navHome: 'होम',
     navAdvisor: 'सिंचाई सलाहकार',
     navWeather: 'मौसम और बारिश',
     navLands: 'खेत व ज़मीन',
     newPlot: 'नया खेत',
     registerNewLand: 'नया खेत जोड़ें',
-    registerNewLandTitle: 'नया खेत पंजीकृत करें (बाराबंकी, उप्र)',
+    registerNewLandTitle: 'नया कृषि खेत पंजीकृत करें',
     editLandTitle: 'खेत का विवरण बदलें',
     mlLive: 'एआई सक्रिय',
     mlOffline: 'एआई ऑफलाइन',

@@ -4,6 +4,7 @@ import { LandProvider } from './context/LandContext';
 import { LanguageProvider, useLanguage } from './context/LanguageContext';
 import Navbar from './components/Navbar';
 import LandModal from './components/LandModal';
+import HomePage from './pages/HomePage';
 import AdvisorPage from './pages/AdvisorPage';
 import WeatherPage from './pages/WeatherPage';
 import DashboardPage from './pages/DashboardPage';
@@ -39,6 +40,10 @@ function AppContent() {
         <Routes>
           <Route
             path="/"
+            element={<HomePage onOpenAddLand={handleOpenAdd} />}
+          />
+          <Route
+            path="/advisor"
             element={
               <AdvisorPage
                 onOpenAddLand={handleOpenAdd}

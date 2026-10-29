@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { NavLink, Link, useNavigate } from 'react-router-dom';
-import { Droplets, LayoutDashboard, Compass, CloudRain, Plus, Languages } from 'lucide-react';
+import { Droplets, LayoutDashboard, Compass, CloudRain, Plus, Home } from 'lucide-react';
 import { useLand } from '../context/LandContext';
 import { useLanguage } from '../context/LanguageContext';
 import { checkBackendHealth } from '../api/client';
@@ -31,7 +31,7 @@ export default function Navbar({ onOpenAddLand }) {
       onOpenAddLand();
     } else {
       setSelectedLandId(val);
-      navigate('/');
+      navigate('/advisor');
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   };
@@ -64,6 +64,20 @@ export default function Navbar({ onOpenAddLand }) {
             <NavLink
               to="/"
               end
+              className={({ isActive }) =>
+                `flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
+                  isActive
+                    ? 'bg-emerald-50 text-emerald-700 font-bold'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'
+                }`
+              }
+            >
+              <Home className="w-4 h-4" />
+              {t('navHome')}
+            </NavLink>
+
+            <NavLink
+              to="/advisor"
               className={({ isActive }) =>
                 `flex items-center gap-2 px-3.5 py-2 rounded-lg text-sm font-medium transition-colors ${
                   isActive
@@ -206,6 +220,16 @@ export default function Navbar({ onOpenAddLand }) {
         <NavLink
           to="/"
           end
+          className={({ isActive }) =>
+            `flex-1 text-center py-1.5 rounded-md font-medium ${
+              isActive ? 'bg-emerald-100 text-emerald-800 font-bold' : 'text-slate-600'
+            }`
+          }
+        >
+          {t('navHome')}
+        </NavLink>
+        <NavLink
+          to="/advisor"
           className={({ isActive }) =>
             `flex-1 text-center py-1.5 rounded-md font-medium ${
               isActive ? 'bg-emerald-100 text-emerald-800 font-bold' : 'text-slate-600'

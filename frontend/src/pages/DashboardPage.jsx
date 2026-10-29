@@ -37,7 +37,7 @@ export default function DashboardPage({ onOpenAddLand, onOpenEditLand }) {
 
   function handleCheckPlot(landId) {
     setSelectedLandId(landId);
-    navigate('/');
+    navigate('/advisor');
   }
 
   function handleDelete(id, name) {

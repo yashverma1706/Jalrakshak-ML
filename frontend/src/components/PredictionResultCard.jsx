@@ -55,10 +55,14 @@ export default function PredictionResultCard({ result, land }) {
   // Friendly Hindi action mapping
   const actionDisplay = lang === 'hi'
     ? {
+        IRRIGATE_NOW: 'तुरंत सिंचाई करें',
+        IRRIGATE_SOON: 'जल्द सिंचाई करें',
+        MONITOR: 'निगरानी रखें',
+        SKIP_IRRIGATION: 'सिंचाई रोकें',
         REVIEW_RECOMMENDED: 'समीक्षा अनुशंसित',
         INSUFFICIENT_DATA: 'अपर्याप्त डेटा',
-      }[action] || action.replace('_', ' ')
-    : action.replace('_', ' ');
+      }[action] || action.replace(/_/g, ' ')
+    : action.replace(/_/g, ' ');
 
   return (
     <div className={`rounded-2xl border-2 ${badgeConfig.border} bg-white shadow-lg overflow-hidden animate-in fade-in duration-200`}>
