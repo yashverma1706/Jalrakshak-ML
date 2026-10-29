@@ -25,10 +25,10 @@ const DEFAULT_LANDS = [
     soilMoisture: 22.0,
     latestPrediction: {
       need: 'High',
-      action: 'REVIEW_RECOMMENDED',
+      action: 'IRRIGATE_NOW',
       rainfall24h: 0.0,
       timestamp: new Date().toISOString(),
-      reason: 'Low soil moisture for vegetative Rice on Clay soil in Barabanki.',
+      reason: 'High water need with negligible rainfall forecast (0.0 mm). Irrigate as soon as possible to prevent crop stress and yield loss.',
     },
   },
   {
@@ -44,7 +44,7 @@ const DEFAULT_LANDS = [
     soilMoisture: 38.0,
     latestPrediction: {
       need: 'Low',
-      action: 'REVIEW_RECOMMENDED',
+      action: 'SKIP_IRRIGATION',
       rainfall24h: 0.0,
       timestamp: new Date(Date.now() - 3600000 * 3).toISOString(),
       reason: 'Adequate soil moisture for flowering Wheat.',

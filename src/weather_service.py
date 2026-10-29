@@ -150,8 +150,8 @@ def get_rainfall_forecast(
         "forecast_hours": len(selected_rainfall),
         "rainfall_next_24h_mm": round(sum(selected_rainfall), 2),
         "hourly_forecast": [
-            {"time": time, "precipitation_mm": rainfall}
-            for time, rainfall in zip(selected_times, selected_rainfall)
+            {"time": ts, "precipitation_mm": rainfall}
+            for ts, rainfall in zip(selected_times, selected_rainfall)
         ],
     }
 

@@ -53,7 +53,7 @@ def test_run_backend_success(monkeypatch):
     assert result["status"] == "success"
     assert result["prediction"]["irrigation_need"] == "Medium"
     assert result["weather"]["rainfall_next_24h_mm"] == 2.5
-    assert result["decision"]["action"] == "REVIEW_RECOMMENDED"
+    assert result["decision"]["action"] == "IRRIGATE_SOON"  # Medium need + 2.5 mm rain
 
     # The model receives exactly the six expected features.
     assert set(captured) == {

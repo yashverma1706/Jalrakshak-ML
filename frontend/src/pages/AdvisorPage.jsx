@@ -133,7 +133,7 @@ export default function AdvisorPage({ onOpenAddLand, onOpenEditLand }) {
               {t('activeFieldPlot')}
             </span>
             <span className="text-xs font-semibold text-slate-700 bg-slate-100 px-2.5 py-0.5 rounded-full">
-              📍 {lang === 'hi' ? 'भारत, उत्तर प्रदेश, बाराबंकी' : 'India, Uttar Pradesh, Barabanki'}
+              📍 {selectedLand.locationName || 'Location not set'}
             </span>
             <span className="text-xs text-slate-400">({selectedLand.areaAcres} {t('acres')})</span>
           </div>
@@ -142,7 +142,7 @@ export default function AdvisorPage({ onOpenAddLand, onOpenEditLand }) {
           </h1>
           <p className="text-xs text-slate-500 flex items-center gap-1">
             <MapPin className="w-3.5 h-3.5 text-emerald-600" />
-            {t('fieldGps')}: {selectedLand.latitude}° N, {selectedLand.longitude}° E • {lang === 'hi' ? 'बाराबंकी ज़िला, उप्र' : 'Barabanki District, UP'}
+            {t('fieldGps')}: {selectedLand.latitude}° N, {selectedLand.longitude}° E • {selectedLand.locationName || 'Location not set'}
           </p>
         </div>
 
