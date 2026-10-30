@@ -4,9 +4,9 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(PROJECT_ROOT))
 
-import src.weather_service as weather_service
-from src.predict import predict_irrigation_need
 from src.decision_service import recommend_action
+from src.predict import predict_irrigation_need
+from src import weather_service
 
 
 def test_prediction_flows_into_decision_service(monkeypatch):
@@ -55,7 +55,7 @@ def test_prediction_flows_into_decision_service(monkeypatch):
         rainfall_next_24h_mm=rainfall["rainfall_next_24h_mm"],
     )
 
-    # Step 5: Validate the complete workflow
-    assert result["action"] == "REVIEW_RECOMMENDED"
+    # Step 5: Validate the complete workflow (High need + 2.5mm rain -> IRRIGATE_NOW)
+    assert result["action"] == "IRRIGATE_NOW"
     assert result["irrigation_need"] == prediction
     assert result["rainfall_next_24h_mm"] == 2.5
