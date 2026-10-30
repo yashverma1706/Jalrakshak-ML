@@ -1,4 +1,3 @@
-
 import math
 from typing import Any
 
@@ -60,10 +59,18 @@ def run_backend(
     # Step 3: Predict using the original six-feature model.
     prediction = predict_irrigation_need(model_input)
 
-    # Step 4: Keep forecast rainfall in the decision layer only.
+    # Step 4: Calculate actionable recommendation and water schedule
     decision = recommend_action(
         irrigation_need=prediction,
         rainfall_next_24h_mm=weather["rainfall_next_24h_mm"],
+        soil_moisture=property_data.get("Soil_Moisture"),
+        crop_type=property_data.get("Crop_Type"),
+        crop_growth_stage=property_data.get("Crop_Growth_Stage"),
+        soil_type=property_data.get("Soil_Type"),
+        area_acres=property_data.get("area_acres", 2.5),
+        pipe_diameter_inches=property_data.get("pipe_diameter_inches", 2.5),
+        motor_hp=property_data.get("motor_hp", 5.0),
+        irrigation_method=property_data.get("irrigation_method", "Flood"),
     )
 
     return {

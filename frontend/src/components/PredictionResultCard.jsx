@@ -1,5 +1,5 @@
 import React from 'react';
-import { CheckCircle2, AlertTriangle, AlertCircle, Sparkles, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, AlertTriangle, AlertCircle, Sparkles, ShieldCheck, Droplets, Clock, Gauge } from 'lucide-react';
 import { useLanguage } from '../context/LanguageContext';
 
 export default function PredictionResultCard({ result, land }) {
@@ -11,6 +11,7 @@ export default function PredictionResultCard({ result, land }) {
   const action = decision?.action || 'REVIEW_RECOMMENDED';
   const reason = decision?.reason || '';
   const rainfall24h = weather?.rainfall_next_24h_mm ?? 0;
+  const waterSchedule = decision?.water_schedule;
 
   const badgeConfig = {
     High: {
@@ -52,7 +53,6 @@ export default function PredictionResultCard({ result, land }) {
 
   const IconComponent = badgeConfig.icon;
 
-  // Friendly Hindi action mapping
   const actionDisplay = lang === 'hi'
     ? {
         IRRIGATE_NOW: 'तुरंत सिंचाई करें',
@@ -79,7 +79,7 @@ export default function PredictionResultCard({ result, land }) {
                 {badgeConfig.needBadge}
               </span>
               <span className="text-xs font-semibold text-slate-500">
-                {lang === 'hi' ? 'खेत:' : 'Plot:'} {land?.name || 'Selected Field'}
+                {lang === 'hi' ? 'खेत:' : 'Plot:'} {land?.name || 'Primary Field'}
               </span>
             </div>
             <h2 className="text-xl font-extrabold text-slate-900 mt-0.5">
@@ -116,6 +116,68 @@ export default function PredictionResultCard({ result, land }) {
             </p>
           )}
         </div>
+
+        {/* Water Volume & Pump Operational Schedule */}
+        {waterSchedule && (
+          <div className="rounded-xl border border-sky-200 bg-gradient-to-br from-sky-50 to-blue-50/60 p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-lg bg-sky-600 text-white flex items-center justify-center shadow-xs">
+                  <Droplets className="w-4 h-4" />
+                </div>
+                <div>
+                  <h4 className="text-xs font-bold text-sky-950 uppercase tracking-wider">
+                    {lang === 'hi' ? 'अनुशंसित जल मात्रा व पंप समय' : 'Water Volume & Pump Schedule'}
+                  </h4>
+                  <span className="text-[11px] text-sky-700 font-medium">
+                    {lang === 'hi' ? 'खेत रकबा व पाइप विनिर्देश के अनुसार' : 'Calculated for field area & pipe specifications'}
+                  </span>
+                </div>
+              </div>
+              <span className="text-xs font-bold px-2.5 py-1 rounded-lg bg-white border border-sky-200 text-sky-800 shadow-2xs">
+                {waterSchedule.motor_hp} HP • {waterSchedule.pipe_diameter_inches}" {lang === 'hi' ? 'पाइप' : 'Pipe'}
+              </span>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 pt-1">
+              <div className="bg-white/80 p-3 rounded-xl border border-sky-100">
+                <span className="text-[11px] font-semibold text-slate-500 block">
+                  {lang === 'hi' ? 'कुल जल आवश्यकता' : 'Water Needed'}
+                </span>
+                <span className="text-base font-extrabold text-sky-900 block mt-0.5">
+                  {waterSchedule.water_volume_liters.toLocaleString()} L
+                </span>
+                <span className="text-[10px] text-slate-400">
+                  (~{waterSchedule.water_volume_m3} m³ / {waterSchedule.gross_water_depth_mm} mm)
+                </span>
+              </div>
+
+              <div className="bg-white/80 p-3 rounded-xl border border-sky-100">
+                <span className="text-[11px] font-semibold text-slate-500 block">
+                  {lang === 'hi' ? 'अनुमानित पंप अवधि' : 'Pump Run Time'}
+                </span>
+                <span className="text-base font-extrabold text-emerald-700 block mt-0.5">
+                  ⏱️ {waterSchedule.pump_runtime_formatted}
+                </span>
+                <span className="text-[10px] text-slate-400">
+                  @{waterSchedule.pump_discharge_lph.toLocaleString()} L/hr
+                </span>
+              </div>
+
+              <div className="col-span-2 sm:col-span-1 bg-white/80 p-3 rounded-xl border border-sky-100">
+                <span className="text-[11px] font-semibold text-slate-500 block">
+                  {lang === 'hi' ? 'सिंचाई विधि' : 'Irrigation Method'}
+                </span>
+                <span className="text-xs font-bold text-slate-800 block mt-0.5">
+                  {waterSchedule.irrigation_method}
+                </span>
+                <span className="text-[10px] text-slate-500">
+                  {waterSchedule.area_acres} {lang === 'hi' ? 'एकड़' : 'Acres'}
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Actionable Recommendations */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">

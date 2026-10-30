@@ -87,6 +87,32 @@ class IrrigationRequest(BaseModel):
         le=180,
         description="Longitude coordinate (-180 to 180)",
     )
+    area_acres: Optional[float] = Field(
+        default=2.5,
+        ge=0.01,
+        le=10000,
+        alias="area_acres",
+        description="Field size in acres",
+    )
+    pipe_diameter_inches: Optional[float] = Field(
+        default=2.5,
+        ge=0.5,
+        le=12.0,
+        alias="pipe_diameter_inches",
+        description="Delivery pipe diameter in inches",
+    )
+    motor_hp: Optional[float] = Field(
+        default=5.0,
+        ge=0.5,
+        le=100.0,
+        alias="motor_hp",
+        description="Pump motor horsepower rating",
+    )
+    irrigation_method: Optional[str] = Field(
+        default="Flood",
+        alias="irrigation_method",
+        description="Irrigation method: Flood, Drip, or Sprinkler",
+    )
 
     model_config = {"populate_by_name": True}
 
@@ -134,6 +160,10 @@ def predict(request: IrrigationRequest) -> dict[str, Any]:
             "Crop_Type": request.crop_type,
             "Crop_Growth_Stage": request.crop_growth_stage,
             "Soil_Type": request.soil_type,
+            "area_acres": request.area_acres,
+            "pipe_diameter_inches": request.pipe_diameter_inches,
+            "motor_hp": request.motor_hp,
+            "irrigation_method": request.irrigation_method,
         }
 
         return run_backend(

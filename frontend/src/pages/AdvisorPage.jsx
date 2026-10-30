@@ -89,6 +89,10 @@ export default function AdvisorPage({ onOpenAddLand, onOpenEditLand }) {
         Soil_Type: selectedLand.soilType,
         latitude: Number(selectedLand.latitude),
         longitude: Number(selectedLand.longitude),
+        area_acres: Number(selectedLand.areaAcres) || 2.5,
+        pipe_diameter_inches: Number(selectedLand.pipeDiameterInches) || 2.5,
+        motor_hp: Number(selectedLand.motorHp) || 5.0,
+        irrigation_method: selectedLand.irrigationMethod || 'Flood',
       };
 
       const result = await requestIrrigationPrediction(payload);
@@ -161,6 +165,11 @@ export default function AdvisorPage({ onOpenAddLand, onOpenEditLand }) {
           <div className="px-3 py-1.5 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 flex items-center gap-1.5">
             <Layers className="w-3.5 h-3.5 text-amber-600" />
             {lang === 'hi' ? 'मिट्टी:' : 'Soil:'} <span className="text-slate-900 font-bold">{soilDisplay}</span>
+          </div>
+
+          <div className="px-3 py-1.5 rounded-xl bg-sky-50 border border-sky-200 text-xs font-semibold text-sky-800 flex items-center gap-1.5">
+            <Droplets className="w-3.5 h-3.5 text-sky-600" />
+            {lang === 'hi' ? 'पंप:' : 'Pump:'} <span className="text-slate-900 font-bold">{selectedLand.motorHp ?? 5} HP • {selectedLand.pipeDiameterInches ?? 2.5}"</span>
           </div>
 
           <button

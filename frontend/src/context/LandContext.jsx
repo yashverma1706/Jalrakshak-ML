@@ -2,78 +2,31 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 
 const LandContext = createContext(null);
 
-// Versioned key to ensure Barabanki, UP locations load fresh
-const STORAGE_KEY_LANDS = 'jalrakshak_farmer_lands_v3';
-const STORAGE_KEY_SELECTED = 'jalrakshak_selected_land_id_v3';
-const STORAGE_KEY_HISTORY = 'jalrakshak_prediction_history_v3';
+// Bumped storage version key to reset cached mock lands to single-field model
+const STORAGE_KEY_LANDS = 'jalrakshak_single_land_v5';
+const STORAGE_KEY_SELECTED = 'jalrakshak_selected_land_id_v5';
+const STORAGE_KEY_HISTORY = 'jalrakshak_prediction_history_v5';
 
 // Barabanki, Uttar Pradesh, India coordinates
 const BARABANKI_DEFAULT_LAT = 26.93;
 const BARABANKI_DEFAULT_LON = 81.18;
 
+// Single Primary Registered Field
 const DEFAULT_LANDS = [
   {
-    id: 'land-1',
-    name: 'Barabanki Central Farm (Tubewell)',
+    id: 'primary-field',
+    name: 'Primary Agricultural Field',
     locationName: 'Barabanki, Uttar Pradesh, India',
-    areaAcres: 3.5,
-    cropType: 'Rice',
+    areaAcres: 2.5,
+    cropType: 'Wheat',
     growthStage: 'Vegetative',
-    soilType: 'Clay',
+    soilType: 'Loamy',
     latitude: 26.93,
     longitude: 81.18,
-    soilMoisture: 22.0,
-    latestPrediction: {
-      need: 'High',
-      action: 'IRRIGATE_NOW',
-      rainfall24h: 0.0,
-      timestamp: new Date().toISOString(),
-      reason: 'High water need with negligible rainfall forecast (0.0 mm). Irrigate as soon as possible to prevent crop stress and yield loss.',
-    },
-  },
-  {
-    id: 'land-2',
-    name: 'Dewa Sharif Block Field',
-    locationName: 'Dewa, Barabanki, Uttar Pradesh, India',
-    areaAcres: 5.0,
-    cropType: 'Wheat',
-    growthStage: 'Flowering',
-    soilType: 'Loamy',
-    latitude: 27.03,
-    longitude: 81.16,
-    soilMoisture: 38.0,
-    latestPrediction: {
-      need: 'Low',
-      action: 'SKIP_IRRIGATION',
-      rainfall24h: 0.0,
-      timestamp: new Date(Date.now() - 3600000 * 3).toISOString(),
-      reason: 'Adequate soil moisture for flowering Wheat.',
-    },
-  },
-  {
-    id: 'land-3',
-    name: 'Fatehpur Tehsil Farm',
-    locationName: 'Fatehpur, Barabanki, Uttar Pradesh, India',
-    areaAcres: 6.2,
-    cropType: 'Sugarcane',
-    growthStage: 'Vegetative',
-    soilType: 'Silt',
-    latitude: 27.02,
-    longitude: 81.22,
-    soilMoisture: 28.0,
-    latestPrediction: null,
-  },
-  {
-    id: 'land-4',
-    name: 'Ram Sanehi Ghat Plot',
-    locationName: 'Ram Sanehi Ghat, Barabanki, Uttar Pradesh, India',
-    areaAcres: 2.5,
-    cropType: 'Potato',
-    growthStage: 'Sowing',
-    soilType: 'Sandy',
-    latitude: 26.75,
-    longitude: 81.34,
-    soilMoisture: 19.0,
+    soilMoisture: 24.0,
+    pipeDiameterInches: 2.5,
+    motorHp: 5.0,
+    irrigationMethod: 'Flood',
     latestPrediction: null,
   },
 ];
@@ -82,7 +35,10 @@ export function LandProvider({ children }) {
   const [lands, setLands] = useState(() => {
     try {
       const saved = localStorage.getItem(STORAGE_KEY_LANDS);
-      if (saved) return JSON.parse(saved);
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+      }
     } catch (e) {
       console.warn('Failed reading lands from storage', e);
     }
@@ -94,7 +50,7 @@ export function LandProvider({ children }) {
       const saved = localStorage.getItem(STORAGE_KEY_SELECTED);
       if (saved && lands.some((l) => l.id === saved)) return saved;
     } catch {}
-    return lands[0]?.id || '';
+    return lands[0]?.id || 'primary-field';
   });
 
   const [history, setHistory] = useState(() => {
@@ -128,18 +84,22 @@ export function LandProvider({ children }) {
   const selectedLand = lands.find((l) => l.id === selectedLandId) || lands[0] || null;
 
   function addLand(newLandData) {
-    const newId = 'land-' + Date.now();
+    const newId = 'field-' + Date.now();
     const newLand = {
       ...newLandData,
       id: newId,
       locationName: newLandData.locationName || 'Barabanki, Uttar Pradesh, India',
       soilMoisture: Number(newLandData.soilMoisture) || 25,
-      areaAcres: Number(newLandData.areaAcres) || 1,
+      areaAcres: Number(newLandData.areaAcres) || 2.5,
+      pipeDiameterInches: Number(newLandData.pipeDiameterInches) || 2.5,
+      motorHp: Number(newLandData.motorHp) || 5.0,
+      irrigationMethod: newLandData.irrigationMethod || 'Flood',
       latitude: Number(newLandData.latitude) || BARABANKI_DEFAULT_LAT,
       longitude: Number(newLandData.longitude) || BARABANKI_DEFAULT_LON,
       latestPrediction: null,
     };
-    setLands((prev) => [newLand, ...prev]);
+    // Maintain single primary field
+    setLands([newLand]);
     setSelectedLandId(newId);
     return newLand;
   }
@@ -168,6 +128,7 @@ export function LandProvider({ children }) {
       temperature: result.weather?.temperature_c,
       humidity: result.weather?.humidity_percent,
       reason: result.decision?.reason || '',
+      water_schedule: result.decision?.water_schedule || null,
       timestamp: new Date().toISOString(),
     };
 
@@ -180,11 +141,15 @@ export function LandProvider({ children }) {
     const historyItem = {
       id: 'hist-' + Date.now(),
       landId,
-      landName: targetLand?.name || 'Land Plot',
+      landName: targetLand?.name || 'Primary Field',
       locationName: targetLand?.locationName || 'Barabanki, UP, India',
       cropType: targetLand?.cropType || 'N/A',
       soilType: targetLand?.soilType || 'N/A',
       growthStage: targetLand?.growthStage || 'N/A',
+      areaAcres: targetLand?.areaAcres || 2.5,
+      pipeDiameterInches: targetLand?.pipeDiameterInches || 2.5,
+      motorHp: targetLand?.motorHp || 5.0,
+      irrigationMethod: targetLand?.irrigationMethod || 'Flood',
       moisture,
       prediction: predictionSummary,
       timestamp: new Date().toISOString(),
